@@ -9,6 +9,12 @@ library(data.table)
 airports <- fread("~/USU/Coursework/Programming for Biologist (BIOL 6750)/Code_Share/BIOL6750-Options/airports.csv")
 flightdata <- fread('~/Downloads/2008.csv', stringsAsFactors = FALSE)
 
+# This is method to load ata from the web source instead of a disk file
+library(data.table)
+library(suppdata)
+flightdatatest <- fread(suppdata("http://stat-computing.org/dataexpo/2009/2008.csv.bz2"))
+
+
 # 1. (b) Calculate the mean delay for each departure and arrival airport.
 #        Rank the airports by departure/arrival delays.
 
