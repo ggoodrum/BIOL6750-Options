@@ -58,6 +58,85 @@ cor.test(AllDelays$`AvgDepDly(min)`, AllDelays$`AvgArrDly(min)`)
 # 2. Use expand.grid, prog.bar, and seq to improve code.  Fix the lack of replication
 #    and address conflation of effect size with number of samples in their power analysis.
 
+# Load required libraries
+library(geiger)
+
+# Setup simulation parameters
+sims <- data.frame(expand.grid(effect.sizes = c(-5,-4,-3,-2,-1,0,1,2,3,4,5), n.samples = c(5,10,15,20,25,30,35,40)))
+
+# Create value holder for p.value results
+p.values <- vector()
+
+# Define progress bar for loop
+prog.bar <- function(x, y){
+  if(y < 100){
+    cat(".")}
+  else {
+    z <- Filter(function(z) z>=0, seq(1,y,length.out=100)-x)
+    if(length(z) > 0)
+      tryCatch(if(z[1] < 1) if((length(z) %% 10)==0) cat("|") else cat("."),
+               error=function(z) cat("."))
+  }
+}
+
+# For every combination of effect size and n.samples
+for (i in 1:nrow(sims)){
+  # Run the progress bar
+  prog.bar(i, nrow(sims))
+  # Draw a set of random numbers using n.samples
+  one.sample <- rnorm(sims$n.samples[i], 0)
+  # Draw another set of with a difference from the current effect size
+  other.sample <- rnorm(sims$n.samples[i], sims$effect.sizes[i])
+  # Perform a t-test
+  test <- t.test(one.sample, other.sample)
+  # Append the resulting
+  p.values <- append(p.values, test$p.value)
+}
+
+# Plot the p-values against the effect sizes
+plot(p.values ~ sims$effect.sizes)
 
 
 # ---- Below this line is reference code from the handout ----
+
+
+# These are my effect sizes
+effect.sizes <- c(-5,-4,-3,-2,-1,0,1,2,3,4,5)
+# These are the number of samples I'll draw each time
+n.samples <- c(5,10,15,20,25,30,35,40)
+# I want to store the p-values from a t-test in this
+p.values <- 0
+# Loop over the effect sizes
+for(eff.siz in effect.sizes){
+  # Loop over the number of samples
+  for(n in n.samples){
+    # Draw one set of random numbers (using n.samples)
+    one.sample <- rnorm(n, 0)
+    # Draw another set (with a difference from effecti.sizes)
+    other.sample <- rnorm(n, eff.siz)
+    # Do a t-test
+    test <- t.test(one.sample, other.sample)
+    # Add (append) the p-value from the test to my set of values
+    p.values <- append(p.values, test$p.value)
+  } }
+# Plot the p-values against the effect.size to see how big an effect
+#   I can measure in my experiment
+plot(p.values ~ effect.sizes)
+# IT DOESN'T WORK! R is stupid and wrong
+
+prog.bar <- function(x, y){
+  if(y < 100){
+    cat(".")}
+  else {
+      z <- Filter(function(z) z>=0, seq(1,y,length.out=100)-x)
+      if(length(z) > 0)
+        tryCatch(if(z[1] < 1) if((length(z) %% 10)==0) cat("|") else cat("."),
+                 error=function(z) cat("."))
+  }
+}
+
+for(i in 1:10000){
+  prog.bar(i, 10000)
+}
+
+
