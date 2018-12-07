@@ -12,9 +12,11 @@ library(gridExtra)
 # Organize data inside a data frame.
 a <- rnorm(100)
 b <- rnorm(100)
+b.cut <- cut(b, breaks=5)t
+bin <-
 c <- rnorm(100)
 response <- a * b + c + rnorm(100)
-data <- data.frame(a=a, b=b, c=c, response=response)
+data <- data.frame(a=a, b=b, c=c, response=response, b.cut=b.cut)
 
 # Create better color ramp
 library(RColorBrewer)
@@ -66,13 +68,14 @@ scale.c <- (scale.c / (max(scale.c))) * 2
 
 # Make two plotting frames, with a 2:1 ratio of their heights
 # Route to PDF because RStudio has problems with display window
-pdf("Option1-.pdf")
+pdf("Option13-1.pdf")
 # Make two plotting frames, with a 2:1 ratio of their heights
-layout(matrix(1:2, nrow=2))
+layout(matrix(1:3, nrow=3))
 plot(a ~ b, col=better.cols[cut.resp], cex=scale.c)
 legend("bottomright", legend=c, col = better.cols[cut.resp], cex = scale.c)
 # Make a blank plot at the bottom
 plot(NA, xlim=c(0,1), ylim=c(0,1), type="n", xlab="", ylab="", axes=FALSE)
+title((main='Legend'))
 # Add a gradient scale bar
 library(plotrix)
 gradient.rect(0, 0, 1, 1, col=better.cols, border=NA)
@@ -80,10 +83,12 @@ gradient.rect(0, 0, 1, 1, col=better.cols, border=NA)
 text(seq(0,1,length.out=5), y=.5,
      labels=round(seq(min(response),max(response),length.out=5),2)
 )
+plot(NA, xlim=c(0,1), ylim=c(0,1), type="n", xlab="", ylab="")
 #... adding a legend with different sizes is an exercise at the end
-legend("topleft", legend="hey you", pch=20)
+legend("bottom", legend=c(min(c), median(c), max(c)), pch=1, pt.cex = c(min(scale.c), median(scale.c), max(scale.c)), title = "C Value")
 #legend(x=.5, y=.5, legend=c, col = better.cols[cut.resp], cex = scale.c)
 dev.off()
+
 
 #pdf("demo.pdf")
 #plot(1:10)
@@ -101,7 +106,9 @@ layout(matrix(c(1,2,1,3), nrow=2), heights=c(2,1))
 plot(a ~ b, col=better.cols[cut.resp], cex=scale.c)
 # Make a blank plot at the bottom, this re-routes where the activity is happening
 # CHANGE TO THE NEXT PLOT
-plot(NA, xlim=c(0,1), ylim=c(0,1), type="n", xlab="", ylab="", axes=FALSE)
+# Axes allows you to remove the guides specified in the xlim and ylim fields
+plot(NA, xlim=c(0,1), ylim=c(0,1), type="n", xlab="", ylab="", axes = FALSE)
+title(main = 'Response Value')
 # Add a gradient scale bar
 library(plotrix)
 gradient.rect(0, 0, 1, 1, col=better.cols, border=NA)
@@ -111,14 +118,36 @@ text(seq(0,1,length.out=5), y=.5,
 )
 #... adding a legend with different sizes is an exercise at the end
 # CHANGE TO THE NEXT PLOT
-plot(NA, xlim=c(0,1), ylim=c(0,1), type="n", xlab="", ylab="", axes=FALSE)
+plot(NA, xlim=c(0,1), ylim=c(0,1), type="n", xlab="", ylab="")
 #... adding a legend with different sizes is an exercise at the end
-legend("center", legend='C Value', pch='O', title = 'Legend')
+title(main = 'C Value')
+legend("center", legend=c(round(min(c), digits = 2), round(median(c), digits = 2), round(max(c), digits = 2)), pch=1, pt.cex = c(min(scale.c), median(scale.c), max(scale.c)), bty = 'n')
 dev.off()
 
 # ------------------------------------------------------------------------
 # 3. (a) Go through ggplot2 options and make notes to yourself
 #        on at least 5 options you want to use.
+#        ALL EXAMPLES SHOWN HERE REQUIRE THE DATAFRAME CREATED IN QUESTION 1!
+
+# 1. ggsave()
+# - Function that saves a ggplot output to file.  This is not part of a ggplot() + call, but instead is a separate line call
+# - ggsave(filename = "filename.filetype", width = number, height = number, unit = unit, plot = plot.name)
+# - Matches the file type to the extension specified in the file name
+# - Units are the measurements for the output figure dimensions (ex. in, mm, cm),
+#   Units defaults to the units of the plotting window
+# - plot defaults to last_plot() if not specified
+ggsave(filename = "test.pdf", width = 5, height = 5)
+
+# 2. ggplot() + geom_bar()
+# - geom_bar at base form is meant to be used like a histogram (1 variable and counts)
+# - The way to circumvent this is in ggplot() set x = the variable you want to plot, and
+# - y = another column of the dataframe that groups the values specified in x.
+# - Numerous examples of different fills and orientations can be found here:
+# - http://www.sthda.com/english/wiki/ggplot2-barplots-quick-start-guide-r-software-and-data-visualization
+ggplot(data=data, aes(x=b.cut, y=a)) + geom_bar(stat='identity')
+
+# 3.
+
 
 
 
