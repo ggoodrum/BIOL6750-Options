@@ -127,7 +127,13 @@ dev.off()
 # ------------------------------------------------------------------------
 # 3. (a) Go through ggplot2 options and make notes to yourself
 #        on at least 5 options you want to use.
-#        ALL EXAMPLES SHOWN HERE REQUIRE THE DATAFRAME CREATED IN QUESTION 1!
+#        ALL EXAMPLES SHOWN HERE REQUIRE A DATAFRAME TO EXECUTE
+
+value <- sample(1:30, 31, replace=TRUE)
+value2 <- sample(90:100, 31, replace=TRUE)
+day <- rep(c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), length.out=31)
+weather <- rep(c('Rainy', 'Snowy', 'Sunny', 'Cloudy'), length.out=31)
+test.data <- data.frame(value = value, DyofWk = day, value2=value2, weather=weather)
 
 # 1. ggsave()
 # - Function that saves a ggplot output to file.  This is not part of a ggplot() + call, but instead is a separate line call
@@ -138,15 +144,41 @@ dev.off()
 # - plot defaults to last_plot() if not specified
 ggsave(filename = "test.pdf", width = 5, height = 5)
 
-# 2. ggplot() + geom_bar()
+# 2. geom_bar()
 # - geom_bar at base form is meant to be used like a histogram (1 variable and counts)
 # - The way to circumvent this is in ggplot() set x = the variable you want to plot, and
 # - y = another column of the dataframe that groups the values specified in x.
 # - Numerous examples of different fills and orientations can be found here:
 # - http://www.sthda.com/english/wiki/ggplot2-barplots-quick-start-guide-r-software-and-data-visualization
 ggplot(data=data, aes(x=b.cut, y=a)) + geom_bar(stat='identity')
+ggplot(data=test.data, aes(x=DyofWk, y=value)) + geom_bar(stat='identity')
 
-# 3.
+# 3. geom_ribbon(aes(ymin=, ymax=), fill=) + geom_line(aes(y=))
+# - geom_line plots a line using y = some.field in the input dataframe
+# - geom_ribbon can be used in conjunciton to create an wider poly-line
+# - Ribbon must come before line, otherwise the ribbon will over the line
+# - Super useful for plotting values that have an associated range such
+#   as standard deviation or a published accuracy range.
+ggplot(data = test.data, aes(x=value, y=value2)) + geom_ribbon(aes(ymin=value2-1, ymax=value2+1), fill='grey40') + geom_line(aes(y=value2))
+
+# 4. facet_grid()
+# - facet_grid() is a way to break graphed data into different combinations of plots
+#   based on categorical classifications shared among all data values
+# - facet_grid(.~something) divides into columns
+#   facet_grid(something.~) divides into rows
+#   faced_grid(something ~ somethingelse) breaks into rows and columns
+ggplot(test.data, aes(x=value, y=value2)) + facet_grid(.~DyofWk) + geom_point()
+ggplot(test.data, aes(x=value, y=value2)) + facet_grid(DyofWk~.) + geom_point()
+ggplot(test.data, aes(x=value, y=value2)) + facet_grid(DyofWk~weather) + geom_point()
+
+# 5. geom_smooth()/stat_smooth()
+# - Fits a smooth line to a set of data.
+# - geom_smooth() is a simple fitting, stat_smooth() allows users to define the formula
+# - Default is to use the 'loess' method adn the formula y ~ x.
+ggplot(test.data, aes (x=value, y=value2)) + geom_point() + geom_smooth()
+ggplot(data, aes (x=x, y=y)) + geom_point() + stat_smooth(method='lm', formula = y ~ poly(x,2))
+
+
 
 
 
