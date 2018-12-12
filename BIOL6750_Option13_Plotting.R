@@ -12,7 +12,7 @@ library(gridExtra)
 # Organize data inside a data frame.
 a <- rnorm(100)
 b <- rnorm(100)
-b.cut <- cut(b, breaks=5)t
+b.cut <- cut(b, breaks=5)
 bin <-
 c <- rnorm(100)
 response <- a * b + c + rnorm(100)
